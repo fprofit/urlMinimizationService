@@ -3,15 +3,17 @@ package main
 import (
 	"math/rand"
 	"regexp"
-	"strings"
 	"time"
 
-	//"sync/atomic"
+	//"database/sql"
 
 	"github.com/gin-gonic/gin"
 )
 
-var inMemory = make(map[string]string)
+var (
+	inMemory = make(map[string]string)
+	validUrl = regexp.MustCompile(`^(https?:\/\/)?[\w]{1,32}\.[a-zA-Z]{2,32}[^\s]*$`)
+)
 
 func main() {
 	r := gin.Default()
@@ -32,8 +34,8 @@ func main() {
 
 	r.POST("/postOriginalUrlToMinimizedUrl", func(c *gin.Context) {
 		originalUrl := c.Query("originalUrl")
-		if checkUrl(originalUrl) != "false" {
-			c.String(200, UrlGenerator(checkUrl(originalUrl)))
+		if validUrl.MatchString(originalUrl) {
+			c.String(200, UrlGenerator(originalUrl))
 		} else {
 			c.String(400, "")
 		}
@@ -52,29 +54,11 @@ func UrlGenerator(originalUrl string) (minimizedUrl string) {
 	symbol := "1234567890_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	for i := 0; i < 10; i++ {
 		time.Sleep(42 * time.Millisecond)
-		rand.Seed(time.Now().UTC().UnixMicro())
+		rand.Seed(time.Now().UTC().UnixNano())
 		minimizedUrl += string(symbol[rand.Intn(62)])
 	}
 
 	inMemory[originalUrl] = minimizedUrl
 
 	return
-}
-
-func checkUrl(url string) string {
-	var validUrl = regexp.MustCompile(`(https?:\/\/)?[\w-]{1,32}\.[a-zA-Z]{2,32}[^\s]*`)
-	var validHttp = regexp.MustCompile(`(https?:\/\/)[\w-]{1,32}\.[a-zA-Z]{2,32}[^\s]*`)
-	var validWww = regexp.MustCompile(`(www.)[\w-]{1,32}\.[a-zA-Z]{2,32}[^\s]*`)
-	if validUrl.MatchString(url) {
-		if validHttp.MatchString(url) {
-			strHttp := strings.Split(url, "://")
-			url = strHttp[1]
-		}
-		if validWww.MatchString(url) {
-			strWww := strings.Split(url, "www.")
-			url = strWww[1]
-		}
-		return url
-	}
-	return "false"
 }
