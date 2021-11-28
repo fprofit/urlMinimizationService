@@ -11,39 +11,43 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var inMemory = make(map[string]string)
+
 func main() {
 	r := gin.Default()
 	r.GET("/getMinimizedUrlToOriginalUrl", func(c *gin.Context) {
 		minimizedUrl := c.Query("minimizedUrl")
-		originalUrl := checkUrl(minimizedUrl)
-		if originalUrl != "false" {
-			c.String(200, func(originalUrl string) (minimizedUrl string) {
-				minimizedUrl = originalUrl
-				return
-			}(UrlGenerator(originalUrl)))
+		originalUrl := ""
+		for origUrl, miniUrl := range inMemory {
+			if minimizedUrl == miniUrl {
+				originalUrl = origUrl
+			}
+		}
+		if originalUrl != "" {
+			c.String(200, originalUrl)
+		} else {
+			c.String(400, originalUrl)
 		}
 	})
 
 	r.POST("/postOriginalUrlToMinimizedUrl", func(c *gin.Context) {
 		originalUrl := c.Query("originalUrl")
-		minimizedUrl := checkUrl(originalUrl)
-		if minimizedUrl != "false" {
-			c.String(200, func(minimizedUrl string) (originalUrl string) {
-				originalUrl = minimizedUrl
-				return
-			}(UrlGenerator(minimizedUrl)))
+		if checkUrl(originalUrl) != "false" {
+			c.String(200, UrlGenerator(checkUrl(originalUrl)))
+		} else {
+			c.String(400, "")
 		}
 	})
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run()
 }
 
 func UrlGenerator(originalUrl string) (minimizedUrl string) {
 
-	// if originalUrl == urlToDB{
-	// 	minimizedUrl = urlToDB[originalUrl]
-	// 	return
-	// }
+	_, ok := inMemory[originalUrl]
+	if ok {
+		return inMemory[originalUrl]
+	}
 
 	symbol := "1234567890_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	for i := 0; i < 10; i++ {
@@ -51,6 +55,9 @@ func UrlGenerator(originalUrl string) (minimizedUrl string) {
 		rand.Seed(time.Now().UTC().UnixMicro())
 		minimizedUrl += string(symbol[rand.Intn(62)])
 	}
+
+	inMemory[originalUrl] = minimizedUrl
+
 	return
 }
 
