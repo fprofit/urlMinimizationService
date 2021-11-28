@@ -5,9 +5,11 @@ import (
 	"regexp"
 	"time"
 
-	//"database/sql"
+	_ "database/sql"
+	_ "flag"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
 var (
