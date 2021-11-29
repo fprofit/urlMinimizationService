@@ -5,11 +5,11 @@ import (
 	"regexp"
 	"time"
 
-	_ "database/sql"
-	_ "flag"
+	//"mod/db/db"
+
+	//"flag"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
 )
 
 var (
@@ -18,6 +18,16 @@ var (
 )
 
 func main() {
+	//db.dbtest
+	router()
+
+	// inMem := flag.Bool("inMemory", false, "Run microService in memory")
+	// dbSQL := flag.String("dbSQL", "", "Run DB SQL")
+	// flag.Parse()
+
+}
+
+func router() {
 	r := gin.Default()
 	r.GET("/getMinimizedUrlToOriginalUrl", func(c *gin.Context) {
 		minimizedUrl := c.Query("minimizedUrl")
