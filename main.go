@@ -1,13 +1,11 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"math/rand"
 	"regexp"
 	"time"
-
-	//"mod/db/db"
-
-	//"flag"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,12 +16,19 @@ var (
 )
 
 func main() {
-	//db.dbtest
-	router()
 
-	// inMem := flag.Bool("inMemory", false, "Run microService in memory")
-	// dbSQL := flag.String("dbSQL", "", "Run DB SQL")
-	// flag.Parse()
+	//router()
+
+	inMem := flag.Bool("inMemory", false, "Run microService in memory")
+	dbwSQL := flag.String("dbSQL", "", "Run DB SQL")
+	flag.Parse()
+
+	if *inMem {
+		fmt.Println("inMemory", *inMem)
+	} else if *dbwSQL != "" {
+		fmt.Println("dbSQL", *dbwSQL)
+	}
+	fmt.Println(dbw())
 
 }
 
