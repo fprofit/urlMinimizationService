@@ -28,7 +28,6 @@ func main() {
 	} else if *conBDbSQL != "" {
 		psqlInfo = *conBDbSQL
 		if openDB() {
-			openDB()
 			funcBDSQL()
 		}
 	}
