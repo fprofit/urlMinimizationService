@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -20,7 +21,6 @@ func getMiniToOrig(origUrl string) (miniUrl string) {
 	err = db.QueryRow(s).Scan(&miniUrl)
 	if err != nil {
 		miniUrl = UrlGenerator(origUrl)
-
 		insDB := `
 		INSERT INTO miniurltorigrurl_table (miniUrl, origUrl)
 		VALUES($1, $2)`
@@ -47,7 +47,23 @@ func getOrigToMini(miniUrl string) (origUrl string) {
 	return
 }
 
-// CREATE TABLE miniurltorigrurl_table (
-// 	miniUrl varchar(10) UNIQUE NOT NULL,
-//  origUrl varchar NOT UNIQUE NULL,
-// PRIMARY KEY(miniUrl, origUrl));
+func createTab() {
+	db, err := sql.Open("postgres", "user=postgres password=1234 host=localhost sslmode=disable")
+	if err != nil {
+		fmt.Println("errr")
+	}
+	defer db.Close()
+	dbName := "MiniUrlAndOrigUrl"
+	_, err = db.Exec("create database " + dbName)
+	if err != nil {
+		//handle the error
+		log.Fatal(err)
+	}
+	//dbname=MiniUrlToOrigUrl
+
+	_, err = db.Exec("CREATE TABLE miniurltorigrurl (miniUrl varchar(10) UNIQUE NOT NULL, origUrl varchar UNIQUE NOT NULL, PRIMARY KEY(miniUrl, origUrl));")
+	if err != nil {
+		fmt.Println("errr2")
+		log.Fatal(err)
+	}
+}

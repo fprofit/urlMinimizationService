@@ -29,6 +29,8 @@ func main() {
 		psqlInfo = *conBDbSQL
 		funcBDSQL()
 	}
+
+	createTab()
 }
 
 func funcBDSQL() {
