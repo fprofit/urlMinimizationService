@@ -61,6 +61,7 @@ func openDB() bool {
 	if err != nil {
 		createDB()
 	}
+	createTab()
 	return true
 }
 
@@ -74,7 +75,6 @@ func createDB() {
 	if err != nil {
 		panic(err)
 	}
-	createTab()
 }
 
 func createTab() {
@@ -83,7 +83,7 @@ func createTab() {
 		panic(err)
 	}
 	defer db.Close()
-	creaTab := fmt.Sprintf("CREATE TABLE %s (miniurl varchar(10) UNIQUE NOT NULL, origurl varchar UNIQUE NOT NULL, PRIMARY KEY(miniurl, origurl));", tabName)
+	creaTab := fmt.Sprintf("CREATE TABLE if not exists %s (miniurl varchar(10) UNIQUE NOT NULL, origurl varchar UNIQUE NOT NULL, PRIMARY KEY(miniurl, origurl));", tabName)
 	_, err = db.Exec(creaTab)
 	if err != nil {
 		panic(err)

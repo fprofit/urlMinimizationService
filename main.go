@@ -19,7 +19,7 @@ var (
 
 func main() {
 	inMem := flag.Bool("inMemory", false, "Run microService in memory")
-	conBDbSQL := flag.String("dbSQL", "", "Run DB SQL")
+	conBDbSQL := flag.String("dbSQL", "", "Run DB SQL \"host=localhost port=5432 user=postgres password=1234 sslmode=disable\"")
 	flag.Parse()
 
 	if *inMem {
@@ -43,7 +43,7 @@ func funcBDSQL() {
 		if originalUrl != "" && originalUrl != "false" {
 			c.String(200, originalUrl)
 		} else {
-			c.String(400, originalUrl)
+			c.String(400, "")
 		}
 	})
 
