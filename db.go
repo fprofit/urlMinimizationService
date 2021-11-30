@@ -3,27 +3,30 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/lib/pq"
 )
 
-var psqlInfo string
+var (
+	psqlInfo string
+	dbName   = "dbminiandorigurl"
+	tabName  = "tabminiandorigurl"
+)
 
 func getMiniToOrig(origUrl string) (miniUrl string) {
-	db, err := sql.Open("postgres", psqlInfo)
+	conf := psqlInfo + " dbname=" + dbName
+	db, err := sql.Open("postgres", conf)
 	if err != nil {
 		return "false"
 	}
 	defer db.Close()
 
-	s := fmt.Sprintf("SELECT miniUrl FROM miniurltorigrurl_table WHERE origUrl='%s';", origUrl)
+	s := fmt.Sprintf("SELECT miniUrl FROM %s WHERE origUrl='%s';", tabName, origUrl)
 	err = db.QueryRow(s).Scan(&miniUrl)
 	if err != nil {
 		miniUrl = UrlGenerator(origUrl)
-		insDB := `
-		INSERT INTO miniurltorigrurl_table (miniUrl, origUrl)
-		VALUES($1, $2)`
+		insDB := fmt.Sprintf(`INSERT INTO %s (miniUrl, origUrl)	
+		VALUES($1, $2)`, tabName)
 		_, err := db.Exec(insDB, miniUrl, origUrl)
 		if err != nil {
 			miniUrl = "false"
@@ -33,13 +36,14 @@ func getMiniToOrig(origUrl string) (miniUrl string) {
 }
 
 func getOrigToMini(miniUrl string) (origUrl string) {
-	db, err := sql.Open("postgres", psqlInfo)
+	conf := psqlInfo + " dbname=" + dbName
+	db, err := sql.Open("postgres", conf)
 	if err != nil {
 		return "false"
 	}
 	defer db.Close()
 
-	s := fmt.Sprintf("SELECT origUrl FROM miniurltorigrurl_table WHERE miniUrl='%s';", miniUrl)
+	s := fmt.Sprintf("SELECT origUrl FROM %s WHERE miniUrl='%s';", tabName, miniUrl)
 	err = db.QueryRow(s).Scan(&origUrl)
 	if err != nil {
 		return "false"
@@ -47,23 +51,41 @@ func getOrigToMini(miniUrl string) (origUrl string) {
 	return
 }
 
-func createTab() {
-	db, err := sql.Open("postgres", "user=postgres password=1234 host=localhost sslmode=disable")
+func openDB() bool {
+	db, err := sql.Open("postgres", psqlInfo+" dbname="+dbName)
 	if err != nil {
-		fmt.Println("errr")
+		return false
 	}
 	defer db.Close()
-	dbName := "MiniUrlAndOrigUrl"
+	err = db.Ping()
+	if err != nil {
+		createDB()
+	}
+	return true
+}
+
+func createDB() {
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 	_, err = db.Exec("create database " + dbName)
 	if err != nil {
-		//handle the error
-		log.Fatal(err)
+		panic(err)
 	}
-	//dbname=MiniUrlToOrigUrl
+	createTab()
+}
 
-	_, err = db.Exec("CREATE TABLE miniurltorigrurl (miniUrl varchar(10) UNIQUE NOT NULL, origUrl varchar UNIQUE NOT NULL, PRIMARY KEY(miniUrl, origUrl));")
+func createTab() {
+	db, err := sql.Open("postgres", psqlInfo+" dbname="+dbName)
 	if err != nil {
-		fmt.Println("errr2")
-		log.Fatal(err)
+		panic(err)
+	}
+	defer db.Close()
+	creaTab := fmt.Sprintf("CREATE TABLE %s (miniurl varchar(10) UNIQUE NOT NULL, origurl varchar UNIQUE NOT NULL, PRIMARY KEY(miniurl, origurl));", tabName)
+	_, err = db.Exec(creaTab)
+	if err != nil {
+		panic(err)
 	}
 }

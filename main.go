@@ -27,10 +27,11 @@ func main() {
 		inMemoryFunc()
 	} else if *conBDbSQL != "" {
 		psqlInfo = *conBDbSQL
-		funcBDSQL()
+		if openDB() {
+			openDB()
+			funcBDSQL()
+		}
 	}
-
-	createTab()
 }
 
 func funcBDSQL() {
@@ -40,7 +41,7 @@ func funcBDSQL() {
 		minimizedUrl := c.Query("minimizedUrl")
 		originalUrl := getOrigToMini(minimizedUrl)
 
-		if originalUrl != "" {
+		if originalUrl != "" && originalUrl != "false" {
 			c.String(200, originalUrl)
 		} else {
 			c.String(400, originalUrl)
@@ -49,8 +50,14 @@ func funcBDSQL() {
 
 	r.POST(rPost, func(c *gin.Context) {
 		originalUrl := c.Query("originalUrl")
+
 		if validUrl.MatchString(originalUrl) {
-			c.String(200, getMiniToOrig(originalUrl))
+			miniUrl := getMiniToOrig(originalUrl)
+			if miniUrl != "false" {
+				c.String(200, miniUrl)
+			} else {
+				c.String(400, "")
+			}
 
 		} else {
 			c.String(400, "")
