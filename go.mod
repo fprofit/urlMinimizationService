@@ -1,4 +1,4 @@
-module mod
+module github.com/fprofit/urlMinimizationService/tree/development
 
 go 1.17
 
