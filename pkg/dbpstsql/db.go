@@ -28,6 +28,7 @@ func OpenDB(psgInf string) bool {
 	return true
 }
 
+// create DB
 func createDB() {
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {

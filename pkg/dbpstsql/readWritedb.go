@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// get MiniUrl to OrigUrl & create
+// get MiniUrl to OrigUrl & create an entry if it doesn't exist
 func GetMiniToOrig(origUrl string) (miniUrl string) {
 	conf := psqlInfo + " dbname=" + dbName
 	db, err := sql.Open("postgres", conf)
@@ -31,6 +31,7 @@ func GetMiniToOrig(origUrl string) (miniUrl string) {
 	return
 }
 
+// Get oirinal url to mini url
 func GetOrigToMini(miniUrl string) (origUrl string) {
 	conf := psqlInfo + " dbname=" + dbName
 	db, err := sql.Open("postgres", conf)
