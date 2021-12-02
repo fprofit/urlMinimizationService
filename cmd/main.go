@@ -15,24 +15,22 @@ var (
 	validUrl = regexp.MustCompile(`^(https?:\/\/)?[\w]{1,32}\.[a-zA-Z]{2,32}[^\s]*$`)
 	rGet     = "/getMinimizedUrlToOriginalUrl"
 	rPost    = "/postOriginalUrlToMinimizedUrl"
-	PsqlInfo string
+	PsqlInfo = "host=db port=5432 user=postgres password=1234"
 )
 
 func main() {
 	inMem := flag.Bool("inMemory", false, "Run microService in memory")
-	conBDbSQL := flag.String("dbSQL", "", "Run DB SQL \"-dbSQL \"host=localhost port=5432 user=postgres password=1234\"\"")
+	conBDbSQL := flag.Bool("dbSQL", false, "Run DB SQL -dbSQL")
 	flag.Parse()
 
 	if *inMem {
-		fmt.Println("inMemory", *inMem)
 		inMemoryFunc()
-	} else if *conBDbSQL != "" {
-		PsqlInfo = *conBDbSQL
+	} else if *conBDbSQL {
 		if dbpstsql.OpenDB(PsqlInfo) {
 			funcBDSQL()
 		}
 	} else {
-		fmt.Println("Commands:\n-inMemory\tRun microService in memory\n-dbSQL\tRun DB SQL ' -dbSQL \"host=localhost port=5432 user=postgres password=1234\" '")
+		fmt.Println("Commands:\n-inMemory\tRun microService in memory\n-dbSQL\tRun DB SQL -dbSQL") // \"host=localhost port=5432 user=postgres password=1234\" '")
 	}
 }
 

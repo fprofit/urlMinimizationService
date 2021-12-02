@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  app:
+    build: ./
+    command: ./wait-for-postgres.sh db ./minimizatorUrl -dbSQL
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+  db:
+    restart: always
+    image: postgres
+    volumes:
+    - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER=postgres
+    ports:
+      - 5432:5432

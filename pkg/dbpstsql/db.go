@@ -23,6 +23,7 @@ func OpenDB(psgInf string) bool {
 	err = db.Ping()
 	if err != nil {
 		createDB()
+
 	}
 	createTab()
 	return true
